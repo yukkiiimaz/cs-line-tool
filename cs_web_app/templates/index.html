@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINE返信ツール - 出張買取プラス</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
+            background: #06C755;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 24px;
+        }
+        
+        .header h1 {
+            font-size: 1.6em;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        
+        .main-box {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .input-section {
+            margin-bottom: 20px;
+        }
+        
+        .input-section label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        .customer-input {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        
+        .customer-input:focus {
+            border-color: #06C755;
+        }
+        
+        .customer-input::placeholder {
+            color: #aaa;
+        }
+        
+        .search-btn {
+            width: 100%;
+            padding: 16px;
+            background: #06C755;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 12px;
+        }
+        
+        .search-btn:hover {
+            background: #05b04c;
+        }
+        
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 24px 0;
+        }
+        
+        .result-section {
+            display: none;
+        }
+        
+        .result-section.active {
+            display: block;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .category-badge {
+            background: #06C755;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .reply-box {
+            background: #E8F5E9;
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .reply-content {
+            white-space: pre-wrap;
+            line-height: 1.8;
+            color: #333;
+            font-size: 15px;
+        }
+        
+        .copy-btn-large {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .copy-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .copy-btn-large.copied {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .quick-tags {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .quick-tag {
+            padding: 8px 14px;
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-tag:hover {
+            background: #06C755;
+            color: white;
+            border-color: #06C755;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #06C755;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .similar-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .similar-title {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        
+        .similar-case {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .similar-case-id {
+            font-weight: 600;
+            color: #06C755;
+            margin-bottom: 6px;
+        }
+        
+        .stats {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            font-size: 12px;
+            margin-top: 16px;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            
+            .main-box {
+                padding: 18px;
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💬 LINE返信サポート</h1>
+            <p>出張買取プラス - お客様メッセージを貼り付けてください</p>
+        </div>
+        
+        <div class="main-box">
+            <div class="input-section">
+                <label>📩 お客様からのメッセージ</label>
+                <textarea id="question" class="customer-input" 
+                    placeholder="例: 他で引き取ってくれなかったのですが、お願いできますか？"></textarea>
+                <button id="searchBtn" class="search-btn">返信文を作成</button>
+                
+                <div class="quick-tags">
+                    <button class="quick-tag" data-query="他で断られたのですがお願いできますか">他社で断られた</button>
+                    <button class="quick-tag" data-query="予約を変更したい">予約変更</button>
+                    <button class="quick-tag" data-query="キャンセルしたい">キャンセル</button>
+                    <button class="quick-tag" data-query="冷蔵庫は買い取れますか">査定対象</button>
+                    <button class="quick-tag" data-query="費用はかかりますか">料金</button>
+                    <button class="quick-tag" data-query="明日来てもらえますか">最短日程</button>
+                    <button class="quick-tag" data-query="当日はどんな流れですか">当日の流れ</button>
+                    <button class="quick-tag" data-query="古くても大丈夫ですか">古い品物</button>
+                    <button class="quick-tag" data-query="ありがとうございます">お礼への返信</button>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div id="resultSection" class="result-section">
+                <div id="resultContent"></div>
+            </div>
+            
+            <div id="emptyState" style="text-align: center; color: #aaa; padding: 20px;">
+                ↑ メッセージを入力すると返信文が表示されます
+            </div>
+        </div>
+        
+        <div class="stats">
+            📚 {{ log_count }}件の対応履歴データを参照
+        </div>
+    </div>
+    
+    <script>
+        const questionInput = document.getElementById('question');
+        const searchBtn = document.getElementById('searchBtn');
+        const resultSection = document.getElementById('resultSection');
+        const resultContent = document.getElementById('resultContent');
+        const emptyState = document.getElementById('emptyState');
+        
+        async function search() {
+            const question = questionInput.value.trim();
+            if (!question) return;
+            
+            searchBtn.disabled = true;
+            searchBtn.textContent = '作成中...';
+            resultSection.classList.add('active');
+            emptyState.style.display = 'none';
+            resultContent.innerHTML = '<div class="loading">返信文を作成中</div>';
+            
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+                
+                const data = await response.json();
+                displayResult(data);
+            } catch (error) {
+                resultContent.innerHTML = '<p style="color: red;">エラーが発生しました</p>';
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '返信文を作成';
+            }
+        }
+        
+        function displayResult(data) {
+            let html = '';
+            
+            // 返信文
+            html += '<div class="result-header">';
+            html += '<span class="result-title">✨ 返信文</span>';
+            if (data.faq_category) {
+                html += `<span class="category-badge">${data.faq_category}</span>`;
+            }
+            html += '</div>';
+            
+            html += '<div class="reply-box">';
+            html += `<div class="reply-content" id="replyText">${escapeHtml(data.suggested_response)}</div>`;
+            html += '</div>';
+            
+            html += `<button class="copy-btn-large" onclick="copyReply()">
+                <span id="copyIcon">📋</span>
+                <span id="copyText">コピーしてLINEに貼り付け</span>
+            </button>`;
+            
+            // 類似事例（あれば）
+            if (data.similar_cases && data.similar_cases.length > 0) {
+                html += '<div class="similar-section">';
+                html += '<div class="similar-title">📋 参考: 過去の対応事例</div>';
+                data.similar_cases.slice(0, 2).forEach(c => {
+                    html += `<div class="similar-case">
+                        <div class="similar-case-id">Call ${c.call_id}</div>
+                        ${escapeHtml(c.summary)}
+                    </div>`;
+                });
+                html += '</div>';
+            }
+            
+            resultContent.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function copyReply() {
+            const replyText = document.getElementById('replyText').textContent;
+            const copyBtn = document.querySelector('.copy-btn-large');
+            const copyIcon = document.getElementById('copyIcon');
+            const copyText = document.getElementById('copyText');
+            
+            navigator.clipboard.writeText(replyText).then(() => {
+                copyBtn.classList.add('copied');
+                copyIcon.textContent = '✓';
+                copyText.textContent = 'コピーしました！';
+                
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyIcon.textContent = '📋';
+                    copyText.textContent = 'コピーしてLINEに貼り付け';
+                }, 2000);
+            });
+        }
+        
+        // イベントリスナー
+        searchBtn.addEventListener('click', search);
+        questionInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                search();
+            }
+        });
+        
+        // クイックタグ
+        document.querySelectorAll('.quick-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                questionInput.value = tag.dataset.query;
+                search();
+            });
+        });
+        
+        // フォーカス
+        questionInput.focus();
+    </script>
+</body>
+</html>
