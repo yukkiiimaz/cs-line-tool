@@ -8,7 +8,6 @@ import re
 import unicodedata
 from pathlib import Path
 from typing import List, Dict, Tuple
-from collections import defaultdict
 
 app = Flask(__name__)
 
@@ -296,7 +295,6 @@ class CSKnowledgeBase:
         return result
 
 
-# グローバルな知識ベースインスタンス
 kb = CSKnowledgeBase()
 
 @app.route('/')
@@ -321,7 +319,7 @@ def faq_list():
         faqs.append({
             "category": category,
             "keywords": pattern["keywords"][:5],
-            "response": pattern["response_template"]
+            "response": pattern["line_reply"]
         })
     return jsonify(faqs)
 
